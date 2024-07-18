@@ -1,0 +1,1 @@
+/Users/ryandinville/projects/nvim-plugins/flashcard.nvim/lua/rust_flashcard/target/release/librust_flashcard.rlib: /Users/ryandinville/projects/nvim-plugins/flashcard.nvim/lua/rust_flashcard/src/lib.rs
