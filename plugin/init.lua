@@ -10,14 +10,14 @@ keymaps.setup()
 -- dependencies.setup()
 
 --- TOOD Make this work....
-local ffi = require("ffi")
--- local path_to_lib = package.searchpath("lua/rust_flashcard/release/librust_flashcard", package.cpath)
-local path_to_lib = "../lua/rust_flashcard/release/librust_flashcard"
-print("sheeshhh", path_to_lib)
-local rustlib = ffi.load(path_to_lib)
-
-ffi.cdef([[
-    String greeting();
-]])
-
-print(rustlib.greeting())
+-- local ffi = require("ffi")
+-- -- local path_to_lib = package.searchpath("lua/rust_flashcard/release/librust_flashcard", package.cpath)
+-- local path_to_lib = "lua/rust_flashcard/release/librust_flashcard.dylib"
+-- print("sheeshhh", path_to_lib)
+-- local rustlib = ffi.load(path_to_lib)
+--
+-- ffi.cdef([[
+--     String greeting();
+-- ]])
+--
+-- print(rustlib.greeting())

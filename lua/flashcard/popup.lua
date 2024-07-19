@@ -1,12 +1,16 @@
 local popup = require("plenary.popup")
+local title = ""
+local description = ""
+local window_title = ""
 
 local M = {}
 
-M.open_popup = function()
+M.open_input_popup = function(window_title_input)
 	local buf = vim.api.nvim_create_buf(false, true)
+	window_title = window_title_input
 
 	local win_id = popup.create(buf, {
-		title = "My Popup",
+		title = window_title,
 		highlight = "Normal",
 		line = math.floor((vim.o.lines - 10) / 2),
 		col = math.floor((vim.o.columns - 40) / 2),
@@ -16,7 +20,10 @@ M.open_popup = function()
 	})
 
 	-- Set the buffer content
-	vim.api.nvim_buf_set_lines(buf, 0, -1, false, { "This is a popup window!", "", "Press 'q' to close." })
+	-- vim.api.nvim_buf_set_lines(buf, 0, -1, false, { "This is a popup window!", "", "Press 'q' to close." })
+
+	-- Set input box
+	vim.api.nvim_buf_set_lines(buf, 0, 10, false, { "" })
 
 	-- Set keymap to close the popup with 'q'
 	vim.api.nvim_buf_set_keymap(
@@ -27,11 +34,66 @@ M.open_popup = function()
 		{ noremap = true, silent = true }
 	)
 
+	-- Set keymap to close the popup with 'q'
+	vim.api.nvim_buf_set_keymap(
+		buf,
+		"n",
+		"q",
+		-- "<enter>",
+		':lua require("flashcard.popup").close_popup_q('
+			.. win_id
+			.. ")<CR>",
+		{ noremap = true, silent = true }
+	)
+	vim.api.nvim_buf_set_keymap(
+		buf,
+		"n",
+		"<CR>",
+		-- ':lua require("flashcard.popup").close_popup_enter(' .. win_id .. ", '..buf..')<CR>",
+		':lua require("flashcard.popup").close_popup_enter('
+			.. win_id
+			.. ", "
+			.. buf
+			.. ")<CR>",
+		{ noremap = true, silent = true }
+	)
 	-- Focus the popup window
 	vim.api.nvim_set_current_win(win_id)
 end
 
-M.close_popup = function(win_id)
+--[[
+M.open_description_popup = function()
+	-- TODO
+end --]]
+
+M.close_popup_q = function(win_id)
 	vim.api.nvim_win_close(win_id, true)
+	title = ""
+	description = ""
 end
+
+M.close_popup_enter = function(win_id, buf)
+	local lines = vim.api.nvim_buf_get_lines(buf, 0, 10, false)
+	if window_title == "Enter Title" then
+		title = lines[1]
+	else
+		description = lines[1]
+	end
+
+	vim.api.nvim_win_close(win_id, true)
+	if window_title == "Enter Title" then
+		M.open_input_popup("Enter Description")
+	else
+		print(title, ":")
+		print(description)
+	end
+end
+
 return M
+
+--[[
+IDEAS
+    - open popup and if it closes with enter go open another popup
+        - if closes with q exit
+        - in the enter popup this is where we will add to the json with rust
+--]]
