@@ -40,10 +40,8 @@ local M = {}
 -- TODO
 
 M.addCard = function()
-	--local title = require("flashcard.popup").open_input_popup("Enter Title")
-	-- local descricption = require("flashcard.popup").open_input_popup("Enter Descricption")
-	--TODO: need to have the window popup after the fist one
 	require("flashcard.popup").open_input_popup("Enter Title")
+	-- TODO: get the title and description and use rust to store it
 	-- print(title)
 	-- print(descricption)
 	return "TODO add things"

@@ -19,9 +19,6 @@ M.open_input_popup = function(window_title_input)
 		border = true,
 	})
 
-	-- Set the buffer content
-	-- vim.api.nvim_buf_set_lines(buf, 0, -1, false, { "This is a popup window!", "", "Press 'q' to close." })
-
 	-- Set input box
 	vim.api.nvim_buf_set_lines(buf, 0, 10, false, { "" })
 
@@ -61,11 +58,6 @@ M.open_input_popup = function(window_title_input)
 	vim.api.nvim_set_current_win(win_id)
 end
 
---[[
-M.open_description_popup = function()
-	-- TODO
-end --]]
-
 M.close_popup_q = function(win_id)
 	vim.api.nvim_win_close(win_id, true)
 	title = ""
@@ -90,10 +82,3 @@ M.close_popup_enter = function(win_id, buf)
 end
 
 return M
-
---[[
-IDEAS
-    - open popup and if it closes with enter go open another popup
-        - if closes with q exit
-        - in the enter popup this is where we will add to the json with rust
---]]
