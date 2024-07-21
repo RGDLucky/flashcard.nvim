@@ -2,11 +2,10 @@ local ffi = require("ffi")
 
 -- Specify the library name based on the platform
 --- TOOD Make this work without absolute path
-local lib_name =
-	"/Users/ryandinville/projects/nvim-plugins/flashcard.nvim/lua/rust_flashcard/target/release/librust_flashcard.dylib"
+local lib_path = os.getenv("Flashcard_Nvim_Path") or "./target/release/libmy_plugin_lib.so"
 
 -- Load the Rust library
-local rust_lib = ffi.load(lib_name)
+local rust_lib = ffi.load(lib_path)
 
 ffi.cdef([[
     const char* greeting();
