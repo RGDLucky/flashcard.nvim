@@ -1,10 +1,13 @@
+use std::ffi::{CString, CStr};
+use std::os::raw::c_char;
+
 pub fn add(left: usize, right: usize) -> usize {
     left + right
 }
 
 #[no_mangle]
-pub fn greeting() -> String {
-    String::from("hello")
+pub extern "C" fn greeting() -> *const c_char {
+    CString::new("Hello").unwrap().into_raw()
 }
 
 #[cfg(test)]
