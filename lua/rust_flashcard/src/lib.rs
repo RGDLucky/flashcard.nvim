@@ -19,9 +19,6 @@ pub fn add_card(title: *const c_char, description: *const c_char, file_name: *co
     let rust_title = c_str_to_string(title);
     let rust_description = c_str_to_string(description);
     let rust_file_name = c_str_to_string(file_name);
-    println!("{}", rust_title);
-    println!("{}", rust_description);
-    println!("{}", rust_file_name);
     let _ = write_test(rust_title, rust_description, rust_file_name);
     true
 }
@@ -33,13 +30,13 @@ fn c_str_to_string(c_str: *const c_char) -> String {
     }
 }
 
+// TODO: figure out where to store json files
 fn write_test(title: String, description: String, file_name: String) -> Result<()> {
     let path = "rust_flash_example.txt";
     let content = title + &description + &file_name;
 
     fs::write(path, content)?;
 
-    println!("Successfully wrote to {}", path);
     Ok(())
 }
 
