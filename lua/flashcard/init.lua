@@ -9,7 +9,7 @@ local rust_lib = ffi.load(lib_path)
 
 ffi.cdef([[
     const char* greeting();
-    bool add_card(char* title, char* description, char* file_name);
+    bool add_card(const char* title, const char* description, const char* file_name);
 ]])
 
 print(rust_lib.greeting())
@@ -31,6 +31,12 @@ M.addCard = function()
 
 	-- TODO: get the title and description and use rust to store it
 	-- TODO: figure out how to make the passing of strings work
+	-- local title = "" -- TODO get title
+	-- local description = "" -- TODO get description
+	-- local c_string_title = ffi.new("char[?]", #title + 1)
+	-- local c_string_description = ffi.new("char[?]", #description + 1)
+	--
+	-- local result = rust_lib.add_card(c_string_title, c_string_description, file_name)
 	local result = rust_lib.add_card("", "", file_name)
 	if result then
 		print("Success")

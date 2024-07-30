@@ -81,4 +81,16 @@ M.close_popup_enter = function(win_id, buf)
 	end
 end
 
+M.get_title = function()
+	local result = title
+	title = ""
+	return result
+end
+
+M.get_description = function()
+	local result = description
+	description = ""
+	return result
+end
+
 return M
