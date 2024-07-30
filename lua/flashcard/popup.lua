@@ -1,3 +1,19 @@
+local ffi = require("ffi")
+
+-- Specify the library name based on the platform
+--- TOOD Make this work without absolute path
+local lib_path = os.getenv("Flashcard_Nvim_Path") or "./target/release/libmy_plugin_lib.so"
+
+-- Load the Rust library
+local rust_lib = ffi.load(lib_path)
+
+ffi.cdef([[
+    const char* greeting();
+    bool add_card(const char* title, const char* description, const char* file_name);
+]])
+
+print(rust_lib.greeting())
+
 local popup = require("plenary.popup")
 local title = ""
 local description = ""
@@ -76,8 +92,13 @@ M.close_popup_enter = function(win_id, buf)
 	if window_title == "Enter Title" then
 		M.open_input_popup("Enter Description")
 	else
-		print(title, ":")
-		print(description)
+		local api = vim.api
+		local bufnr = api.nvim_win_get_buf(0)
+		local file_name = api.nvim_buf_get_name(bufnr)
+		local result = rust_lib.add_card(title, description, file_name)
+		if result then
+			print("Success")
+		end
 	end
 end
 

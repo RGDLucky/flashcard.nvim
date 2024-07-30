@@ -19,10 +19,10 @@ local M = {}
 
 M.addCard = function()
 	-- Get file name
-	local api = vim.api
-	local bufnr = api.nvim_win_get_buf(0)
-	local file_name = api.nvim_buf_get_name(bufnr)
-	print("Current file: " .. file_name)
+	-- local api = vim.api
+	-- local bufnr = api.nvim_win_get_buf(0)
+	-- local file_name = api.nvim_buf_get_name(bufnr)
+	-- print("Current file: " .. file_name)
 
 	-- Use gui to get title and description
 	require("flashcard.popup").open_input_popup("Enter Title")
@@ -37,10 +37,13 @@ M.addCard = function()
 	-- local c_string_description = ffi.new("char[?]", #description + 1)
 	--
 	-- local result = rust_lib.add_card(c_string_title, c_string_description, file_name)
-	local result = rust_lib.add_card("", "", file_name)
-	if result then
-		print("Success")
-	end
+
+	-- local title = require("flashcard.popup").get_title()
+	-- local description = require("flashcard.popup").get_title()
+	-- local result = rust_lib.add_card(title, description, file_name)
+	-- if result then
+	-- 	print("Success")
+	-- end
 	return "TODO add things"
 end
 
