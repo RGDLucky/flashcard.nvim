@@ -32,6 +32,7 @@ M.addCard = function()
 
 	-- Use gui to get title and description
 	require("flashcard.popup").open_input_popup("Enter Title")
+	print(file_path)
 	-- print(title)
 	-- print(descricption)
 
