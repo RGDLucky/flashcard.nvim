@@ -23,6 +23,10 @@ M.setup = function(config)
 	file_path = config.file_path or "./"
 end
 
+M.get_file_path = function()
+	return file_path
+end
+
 M.addCard = function()
 	-- Get file name
 	-- local api = vim.api

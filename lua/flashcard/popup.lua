@@ -12,7 +12,13 @@ ffi.cdef([[
     bool add_card(const char* title, const char* description, const char* file_name);
 ]])
 
-print(rust_lib.greeting())
+local get_file_name = function(path)
+	-- Extract the file name from the path
+	local file_name = path:match("([^/]+)$")
+	-- Remove the extension from the file name, if it exists
+	local name_without_extension = file_name:match("(.+)%..+") or file_name
+	return name_without_extension
+end
 
 local popup = require("plenary.popup")
 local title = ""
@@ -94,8 +100,11 @@ M.close_popup_enter = function(win_id, buf)
 	else
 		local api = vim.api
 		local bufnr = api.nvim_win_get_buf(0)
-		local file_name = api.nvim_buf_get_name(bufnr)
-		local result = rust_lib.add_card(title, description, file_name)
+		local file_name = get_file_name(api.nvim_buf_get_name(bufnr))
+		-- TODO make it json instead of txt
+		local file_path = require("flashcard").get_file_path() .. file_name .. ".txt"
+		print(file_path)
+		local result = rust_lib.add_card(title, description, file_path)
 		if result then
 			print("Success")
 		end
