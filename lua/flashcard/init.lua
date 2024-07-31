@@ -1,21 +1,27 @@
-local ffi = require("ffi")
+-- local ffi = require("ffi")
 
--- Specify the library name based on the platform
---- TOOD Make this work without absolute path
-local lib_path = os.getenv("Flashcard_Nvim_Path") or "./target/release/libmy_plugin_lib.so"
+-- -- Specify the library name based on the platform
+-- --- TOOD Make this work without absolute path
+-- local lib_path = os.getenv("Flashcard_Nvim_Path") or "./target/release/libmy_plugin_lib.so"
+--
+-- -- Load the Rust library
+-- local rust_lib = ffi.load(lib_path)
+--
+-- ffi.cdef([[
+--     const char* greeting();
+--     bool add_card(const char* title, const char* description, const char* file_name);
+-- ]])
+--
+-- print(rust_lib.greeting())
 
--- Load the Rust library
-local rust_lib = ffi.load(lib_path)
-
-ffi.cdef([[
-    const char* greeting();
-    bool add_card(const char* title, const char* description, const char* file_name);
-]])
-
-print(rust_lib.greeting())
+local file_path = ""
 
 local M = {}
--- TODO
+
+-- TODO: fix this
+M.setup = function(config)
+	file_path = config.file_path or "./"
+end
 
 M.addCard = function()
 	-- Get file name
