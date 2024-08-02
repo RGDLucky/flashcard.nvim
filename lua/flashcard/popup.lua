@@ -101,8 +101,7 @@ M.close_popup_enter = function(win_id, buf)
 		local api = vim.api
 		local bufnr = api.nvim_win_get_buf(0)
 		local file_name = get_file_name(api.nvim_buf_get_name(bufnr))
-		-- TODO make it json instead of txt
-		local file_path = require("flashcard").get_file_path() .. file_name .. ".txt"
+		local file_path = require("flashcard").get_file_path() .. file_name .. ".json"
 		print(file_path)
 		local result = rust_lib.add_card(title, description, file_path)
 		if result then

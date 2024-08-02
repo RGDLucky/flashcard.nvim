@@ -1,9 +1,11 @@
 use std::ffi::{CString, CStr};
 use std::os::raw::c_char;
-use std::fs;
+use std::fs::File;
 use std::path::PathBuf;
-use std::io::Result;
+use std::io::{self, BufReader, Result};
 use dirs;
+use serde_json;
+use serde::{Serialize, Deserialize};
 
 // TODO: delete
 pub fn add(left: usize, right: usize) -> usize {
@@ -21,7 +23,7 @@ pub fn add_card(title: *const c_char, description: *const c_char, file_name: *co
     let rust_title = c_str_to_string(title);
     let rust_description = c_str_to_string(description);
     let rust_file_name = c_str_to_string(file_name);
-    let result = write_test(rust_title, rust_description, rust_file_name);
+    let result = write_json(rust_title, rust_description, rust_file_name);
     match result {
         Ok(()) => true,
         Err(_) => false,
@@ -35,15 +37,44 @@ fn c_str_to_string(c_str: *const c_char) -> String {
     }
 }
 
-// TODO: figure out where to store json files
-fn write_test(title: String, description: String, file_name: String) -> Result<()> {
-    let content = title + &description + &file_name;
-
+fn write_json(title: String, description: String, file_name: String) -> Result<()> {
     let path = expand_tilde(&file_name);
 
-    fs::write(path, content)?;
+     let entry = Entry {
+        title: title.to_string(),
+        description: description.to_string(),
+    };
+
+    let mut content = FileContent { entries: Vec::new() };
+
+    if path.exists() {
+        let file = File::open(&path)?;
+        let reader = io::BufReader::new(file);
+        content = serde_json::from_reader(reader)?;
+    }
+
+    content.entries.push(entry);
+
+    let file = File::create(&path)?;
+    serde_json::to_writer(file, &content)?;
 
     Ok(())
+}
+
+pub fn get_cards(file_name: *const c_char) -> bool {
+    let path = expand_tilde(&c_str_to_string(file_name)).to_string_lossy().to_string();
+    let result = read_json(path);
+    match result {
+        Ok(Vec<Entry>) => true,
+        Err(_) => false,
+    }
+}
+
+fn read_json(path: String) -> Result<Vec<Entry>> {
+    let file = File::open(&path)?;
+    let reader = BufReader::new(file);
+    let content: FileContent = serde_json::from_reader(reader)?;
+    Ok(content.entries)
 }
 
 fn expand_tilde(path: &str) -> PathBuf {
@@ -54,6 +85,17 @@ fn expand_tilde(path: &str) -> PathBuf {
         }
     }
     PathBuf::from(path)
+}
+
+#[derive(Serialize, Deserialize, Debug)]
+struct Entry {
+    title: String,
+    description: String,
+}
+
+#[derive(Serialize, Deserialize, Debug)]
+struct FileContent {
+    entries: Vec<Entry>,
 }
 
 #[cfg(test)]
