@@ -25,6 +25,61 @@ local title = ""
 local description = ""
 local window_title = ""
 
+-- Simple JSON parser for this specific use case
+local parse_json = function(json_str)
+	local function parse_object()
+		local obj = {}
+		assert(json_str:sub(1, 1) == "{", "Expected {")
+		json_str = json_str:sub(2)
+		while json_str:sub(1, 1) ~= "}" do
+			assert(json_str:sub(1, 1) == '"', 'Expected "')
+			json_str = json_str:sub(2)
+			local key = json_str:match('^[^"]+')
+			json_str = json_str:sub(#key + 3)
+			local value = parse_value()
+			obj[key] = value
+			if json_str:sub(1, 1) == "," then
+				json_str = json_str:sub(2)
+			end
+		end
+		json_str = json_str:sub(2)
+		return obj
+	end
+
+	local parse_array = function()
+		local arr = {}
+		assert(json_str:sub(1, 1) == "[", "Expected [")
+		json_str = json_str:sub(2)
+		while json_str:sub(1, 1) ~= "]" do
+			local value = parse_value()
+			table.insert(arr, value)
+			if json_str:sub(1, 1) == "," then
+				json_str = json_str:sub(2)
+			end
+		end
+		json_str = json_str:sub(2)
+		return arr
+	end
+
+	local parse_value = function()
+		local char = json_str:sub(1, 1)
+		if char == '"' then
+			json_str = json_str:sub(2)
+			local value = json_str:match('^[^"]+')
+			json_str = json_str:sub(#value + 2)
+			return value
+		elseif char == "{" then
+			return parse_object()
+		elseif char == "[" then
+			return parse_array()
+		else
+			error("Unexpected character: " .. char)
+		end
+	end
+
+	return parse_value()
+end
+
 local M = {}
 
 M.open_input_popup = function(window_title_input)

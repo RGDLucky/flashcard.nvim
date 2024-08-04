@@ -61,13 +61,15 @@ fn write_json(title: String, description: String, file_name: String) -> Result<(
     Ok(())
 }
 
-pub fn get_cards(file_name: *const c_char) -> bool {
+pub fn get_cards(file_name: *const c_char) -> *const c_char {
     let path = expand_tilde(&c_str_to_string(file_name)).to_string_lossy().to_string();
     let result = read_json(path);
-    match result {
-        Ok(Vec<Entry>) => true,
-        Err(_) => false,
-    }
+    let arr: Vec<Entry> = match result {
+        Ok(entries) => entries,
+        Err(_) => Vec::new(),
+    };
+    let json_string = serialize_entries_to_lua_string(arr);
+    CString::new(json_string).unwrap().into_raw()
 }
 
 fn read_json(path: String) -> Result<Vec<Entry>> {
@@ -85,6 +87,11 @@ fn expand_tilde(path: &str) -> PathBuf {
         }
     }
     PathBuf::from(path)
+}
+
+fn serialize_entries_to_lua_string(entries: Vec<Entry>) -> String {
+    let json_string = serde_json::to_string(&entries).unwrap();
+    json_string
 }
 
 #[derive(Serialize, Deserialize, Debug)]
