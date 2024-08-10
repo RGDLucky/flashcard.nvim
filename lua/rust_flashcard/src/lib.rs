@@ -19,6 +19,15 @@ pub extern "C" fn greeting() -> *const c_char {
 }
 
 #[no_mangle]
+pub extern "C" fn free_string(s: *mut c_char) {
+    if !s.is_null() {
+        unsafe {
+            let _ = CString::from_raw(s); 
+        }
+    }
+}
+
+#[no_mangle]
 pub fn add_card(title: *const c_char, description: *const c_char, file_name: *const c_char) -> bool {
     let rust_title = c_str_to_string(title);
     let rust_description = c_str_to_string(description);
@@ -61,7 +70,8 @@ fn write_json(title: String, description: String, file_name: String) -> Result<(
     Ok(())
 }
 
-pub fn get_cards(file_name: *const c_char) -> *const c_char {
+#[no_mangle]
+pub extern "C" fn get_cards(file_name: *const c_char) -> *const c_char {
     let path = expand_tilde(&c_str_to_string(file_name)).to_string_lossy().to_string();
     let result = read_json(path);
     let arr: Vec<Entry> = match result {

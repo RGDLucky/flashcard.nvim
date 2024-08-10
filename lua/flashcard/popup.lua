@@ -10,6 +10,8 @@ local rust_lib = ffi.load(lib_path)
 ffi.cdef([[
     const char* greeting();
     bool add_card(const char* title, const char* description, const char* file_name);
+    const char* get_cards(const char* file_name);
+    void free_string(const char* s);
 ]])
 
 local get_file_name = function(path)
@@ -24,6 +26,27 @@ local popup = require("plenary.popup")
 local title = ""
 local description = ""
 local window_title = ""
+local json_array = {}
+
+-- pick random card
+local get_random_card = function(tables)
+	-- Check if the table is not empty
+	if #tables == 0 then
+		return nil
+	end
+
+	-- Pick a random index
+	local random_index = math.random(1, #tables)
+
+	-- Store the randomly selected table
+	local selected_table = tables[random_index]
+
+	-- Remove the selected table from the original table
+	table.remove(tables, random_index)
+
+	-- Return the selected table
+	return selected_table
+end
 
 -- Simple JSON parser for this specific use case
 local parse_json = function(json_str)
@@ -61,7 +84,7 @@ local parse_json = function(json_str)
 		return arr
 	end
 
-	local parse_value = function()
+	function parse_value()
 		local char = json_str:sub(1, 1)
 		if char == '"' then
 			json_str = json_str:sub(2)
@@ -81,6 +104,100 @@ local parse_json = function(json_str)
 end
 
 local M = {}
+
+M.start_study = function()
+	local api = vim.api
+	local bufnr = api.nvim_win_get_buf(0)
+	local file_name = get_file_name(api.nvim_buf_get_name(bufnr))
+	local file_path = require("flashcard").get_file_path() .. file_name .. ".json"
+	local c_str = rust_lib.get_cards(file_path)
+	local json_str = ffi.string(c_str)
+	rust_lib.free_string(c_str)
+	json_array = parse_json(json_str)
+	local first_card = get_random_card(json_array)
+	if first_card ~= nil then
+		M.open_study_title_popup(first_card.title, first_card.description)
+	end
+end
+
+M.open_study_title_popup = function(study_title, study_description)
+	local buf = vim.api.nvim_create_buf(false, true)
+	window_title = study_title
+
+	local win_id = popup.create(buf, {
+		title = window_title,
+		highlight = "Normal",
+		line = math.floor((vim.o.lines - 10) / 2),
+		col = math.floor((vim.o.columns - 40) / 2),
+		minwidth = 40,
+		minheight = 10,
+		border = true,
+	})
+
+	-- Set input box
+	vim.api.nvim_buf_set_lines(buf, 0, 10, false, { "" })
+
+	print(study_description)
+
+	vim.api.nvim_buf_set_keymap(
+		buf,
+		"n",
+		"<CR>",
+		-- ':lua require("flashcard.popup").close_popup_enter(' .. win_id .. ", '..buf..')<CR>",
+		':lua require("flashcard.popup").close_popup_study('
+			.. win_id
+			.. ", "
+			.. vim.inspect(study_description)
+			.. ")<CR>",
+		{ noremap = true, silent = true }
+	)
+end
+
+M.close_popup_study = function(win_id, study_description)
+	if study_description ~= "nil" then
+		vim.api.nvim_win_close(win_id, true)
+		M.open_study_description_popup(study_description)
+	else
+		vim.api.nvim_win_close(win_id, true)
+		local result = get_random_card(json_array)
+		if result ~= nil then
+			M.open_study_title_popup(result.title, result.description)
+		end
+	end
+end
+
+M.open_study_description_popup = function(study_description)
+	local buf = vim.api.nvim_create_buf(false, true)
+	window_title = study_description
+
+	local win_id = popup.create(buf, {
+		title = window_title,
+		highlight = "Normal",
+		line = math.floor((vim.o.lines - 10) / 2),
+		col = math.floor((vim.o.columns - 40) / 2),
+		minwidth = 40,
+		minheight = 10,
+		border = true,
+	})
+
+	-- Set input box
+	vim.api.nvim_buf_set_lines(buf, 0, 10, false, { "" })
+
+	local str = "nil"
+
+	vim.api.nvim_buf_set_keymap(
+		buf,
+		"n",
+		"<CR>",
+		-- ':lua require("flashcard.popup").close_popup_enter(' .. win_id .. ", '..buf..')<CR>",
+		':lua require("flashcard.popup").close_popup_study('
+			.. win_id
+			.. ", "
+			.. tostring(str)
+			.. ")<CR>",
+		{ noremap = true, silent = true }
+	)
+end
 
 M.open_input_popup = function(window_title_input)
 	local buf = vim.api.nvim_create_buf(false, true)

@@ -60,6 +60,10 @@ end
 
 M.study = function()
 	--TODO
+	--get list of objects from rust lib
+	--display all of them
+	--  enter goes to the next
+	require("flashcard.popup").start_study()
 	return "TODO study things"
 end
 
