@@ -137,7 +137,7 @@ M.open_study_title_popup = function(study_title, study_description)
 	-- Set input box
 	vim.api.nvim_buf_set_lines(buf, 0, 10, false, { "" })
 
-	print(study_description)
+	-- print(study_description)
 
 	vim.api.nvim_buf_set_keymap(
 		buf,
@@ -154,13 +154,13 @@ M.open_study_title_popup = function(study_title, study_description)
 end
 
 M.close_popup_study = function(win_id, study_description)
-	if study_description ~= "nil" then
-		vim.api.nvim_win_close(win_id, true)
+	vim.api.nvim_win_close(win_id, true)
+	if tostring(study_description) ~= "nil" then
 		M.open_study_description_popup(study_description)
 	else
-		vim.api.nvim_win_close(win_id, true)
 		local result = get_random_card(json_array)
 		if result ~= nil then
+			print(result.title .. ": " .. result.description)
 			M.open_study_title_popup(result.title, result.description)
 		end
 	end
@@ -274,7 +274,7 @@ M.close_popup_enter = function(win_id, buf)
 		local bufnr = api.nvim_win_get_buf(0)
 		local file_name = get_file_name(api.nvim_buf_get_name(bufnr))
 		local file_path = require("flashcard").get_file_path() .. file_name .. ".json"
-		print(file_path)
+		-- print(file_path)
 		local result = rust_lib.add_card(title, description, file_path)
 		if result then
 			print("Success")
