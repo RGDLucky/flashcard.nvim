@@ -122,7 +122,7 @@ end
 
 M.open_study_title_popup = function(study_title, study_description)
 	local buf = vim.api.nvim_create_buf(false, true)
-	window_title = study_title
+	window_title = "title"
 
 	local win_id = popup.create(buf, {
 		title = window_title,
@@ -135,7 +135,7 @@ M.open_study_title_popup = function(study_title, study_description)
 	})
 
 	-- Set input box
-	vim.api.nvim_buf_set_lines(buf, 0, 10, false, { "" })
+	vim.api.nvim_buf_set_lines(buf, 0, 10, false, { tostring("Title") })
 
 	-- print(study_description)
 
@@ -160,7 +160,6 @@ M.close_popup_study = function(win_id, study_description)
 	else
 		local result = get_random_card(json_array)
 		if result ~= nil then
-			print(result.title .. ": " .. result.description)
 			M.open_study_title_popup(result.title, result.description)
 		end
 	end
@@ -168,7 +167,7 @@ end
 
 M.open_study_description_popup = function(study_description)
 	local buf = vim.api.nvim_create_buf(false, true)
-	window_title = study_description
+	window_title = "Description"
 
 	local win_id = popup.create(buf, {
 		title = window_title,
@@ -181,7 +180,7 @@ M.open_study_description_popup = function(study_description)
 	})
 
 	-- Set input box
-	vim.api.nvim_buf_set_lines(buf, 0, 10, false, { "" })
+	vim.api.nvim_buf_set_lines(buf, 0, 10, false, { tostring(study_description) })
 
 	local str = "nil"
 
